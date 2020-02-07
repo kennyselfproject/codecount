@@ -1,1 +1,1 @@
-code and comment analyze tool
+# code statistical analysis
