@@ -109,18 +109,26 @@ int main(int argc, char *argv[])
 
 void print_file_array(long items, FileStat *filesStat){
     int i = 0;
-    printf("                              file                               |"
-           " total files |  size   | total lines |  code lines | cmmnt lines |"
-           " empty lines | empty cmmnt lines |\n");
-    printf("-----------------------------------------------------------------|"
-           "-------------|---------|-------------|-------------|-------------|"
-           "-------------|-------------------|\n");
+    printf("              file               | total files |    size     |"
+           " total lines |  code lines |  cmnt lines | empty lines |"
+           " ecmnt lines |  cmnt rate  |\n");
+    printf("---------------------------------|-------------|-------------|"
+           "-------------|-------------|-------------|-------------|"
+           "-------------|-------------|\n");
     for (i = 0; i < items; i++) {
         FileStat *fileStat = filesStat + i;
-        printf("%-64s |%12ld |%8ld |%12ld |%12ld |%12ld |%12ld |%19ld|\n", 
+        float     commentLines = fileStat->commentLines 
+                                 + fileStat->emptyCommentLines;
+        float     commentRate = 100;
+
+        if (fileStat->totalLines != 0)
+            commentRate = (100 * commentLines) / fileStat->totalLines;
+                                
+        printf("%-32s |%12ld |%12ld |%12ld |%12ld |%12ld |%12ld |%12ld |%12.3f% |\n", 
                fileStat->fileName, fileStat->files, fileStat->totalSize, 
                fileStat->totalLines, fileStat->codeLines, fileStat->commentLines,
-               fileStat->emptyLines, fileStat->emptyCommentLines);
+               fileStat->emptyLines, fileStat->emptyCommentLines, commentRate
+               );
     }
 }
 
@@ -189,8 +197,8 @@ void search_files(DirStat *dirStat, char *dirPath) {
             languagesStat->emptyCommentLines += fileStat->emptyCommentLines;
 
             dirStat->fileTotal++;
-            if (fileStat->fileType == UNKNOW_FILE)
-                printf("%d. %s\n", dirStat->fileTotal, fileName->d_name);
+            //if (fileStat->fileType == UNKNOW_FILE)
+            //    printf("%d. %s\n", dirStat->fileTotal, fileName->d_name);
         }
     }
     closedir(dir);
